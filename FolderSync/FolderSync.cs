@@ -5,10 +5,11 @@ using System.Threading;
 
 class FolderSync
 {
+    static bool keepRunning = true;
     static void Main(string[] args)
     {
         //Validate command line args
-        if (args.Length < 4)
+        if (args.Length < 3)
         {
             Console.WriteLine("Usage: FolderSync <source_folder> <replica_folder> <interval> <log_file>");
             return;
@@ -17,7 +18,9 @@ class FolderSync
         string sourcePath = args[0];
         string replicaPath = args[1];
         int interval;
-        string logFile = args[3];
+
+        //Log file path
+        string logFile = @"C:\Temp\sync_log.txt";
 
         //Validate interval input
         if (!int.TryParse(args[2], out interval) || interval <= 0)
@@ -27,14 +30,33 @@ class FolderSync
         }
 
         Console.WriteLine($"Starting synchronization every {interval} seconds.");
-        LogMessage(logFile, $"Synchronization strated. Interval: {interval} seconds.");
+        LogMessage(logFile, $"Synchronization started. Interval: {interval} seconds.");
+
+        //Listen to user input
+        Thread inputThread = new Thread(() =>
+        {
+            Console.WriteLine("Press [Enter] to close the program.");
+            Console.ReadLine();
+            keepRunning = false;
+        });
+
+        inputThread.Start();
 
         //While true, it will sync every inputed seconds
-        while (true)
+        while (keepRunning)
         {
-            SyncFolders(sourcePath, replicaPath, logFile);
-            Thread.Sleep(interval); //Waits for the inputed interval
+            try
+            {
+                SyncFolders(sourcePath, replicaPath, logFile);
+                Thread.Sleep(interval * 1000); //Waits for the inputed interval
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error: {ex.Message}");
+            }
         }
+
+        Console.WriteLine("Closing Program..");
     }
 
     static void SyncFolders(string sourcePath, string replicaPath, string logFile)
@@ -75,8 +97,11 @@ class FolderSync
             }
         }
 
+        //Update list if there's new items added after last copy
+        string[] updatedReplicaFiles = Directory.GetFiles(replicaPath);
+
         //Delete extra files that don't exist in source folder
-        foreach (string file in replicaFiles)
+        foreach (string file in updatedReplicaFiles)
         {
             string fileName = Path.GetFileName(file);
             string sourceFilePath = Path.Combine(sourcePath, fileName);
@@ -89,7 +114,7 @@ class FolderSync
             }
         }
 
-        Console.WriteLine("Folder are ready for synchronization.");
+        Console.WriteLine("Folders are ready for synchronization.");
     }
 
     static void LogMessage(string logFile, string  message)

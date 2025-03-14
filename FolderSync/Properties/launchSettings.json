@@ -2,7 +2,7 @@
   "profiles": {
     "FolderSync": {
       "commandName": "Project",
-      "commandLineArgs": "\"C:\\Users\\ricar\\OneDrive\\Ambiente de Trabalho\\SourceFolder\" \"C:\\Users\\ricar\\OneDrive\\Ambiente de Trabalho\\ReplicaFolder\" 10 \"C:\\Users\\ricar\\OneDrive\\Ambiente de Trabalho\\Programs\\Veeam Project\""
+      "commandLineArgs": "\"C:\\Users\\ricar\\OneDrive\\Ambiente de Trabalho\\SourceFolder\" \"C:\\Users\\ricar\\OneDrive\\Ambiente de Trabalho\\ReplicaFolder\" 10"
     }
   }
 }
